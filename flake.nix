@@ -1,8 +1,6 @@
 {
   inputs = {
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
-    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
@@ -73,7 +71,7 @@
           hardware.deviceTree.name = "rockchip/rk3568-odroid-m1.dtb";
 
           # Enable nix flakes
-          nix.package = pkgs.nixFlakes;
+          nix.package = pkgs.nix;
           nix.extraOptions = ''
             experimental-features = nix-command flakes
           '';
