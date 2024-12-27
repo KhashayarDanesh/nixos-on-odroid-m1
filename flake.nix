@@ -1,7 +1,7 @@
 {
   inputs = {
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
   };
 
   outputs = {nixpkgs, ...}: let
@@ -30,13 +30,13 @@
           ...
         }: {
           imports = [
-            ./kboot-conf
-            # "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64-installer.nix"
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+            "${fetchTarball {url="https://github.com/KhashayarDanesh/nixos-hardware/tarball/master"; sha256="11698l6r6p0jajd0c2rda0ipi54yi26wrj32a006256axvzz6wqh";}}/hardkernel/odroid-m1"
+            ./sdimageconfiguration.nix
           ];
 
           sdImage = {
-            #compressImage = false;
+            compressImage = false;
             populateFirmwareCommands = let
               configTxt = pkgs.writeText "README" ''
                 Nothing to see here. This empty partition is here because I don't know how to turn its creation off.
@@ -49,49 +49,14 @@
             '';
           };
 
-          #boot.loader.grub.enable = false;
-          boot.loader.kboot-conf.enable = true;
-          # Use kernel >6.6
-          boot.kernelPackages = pkgs.linuxPackages_latest;
-          # Stop ZFS breasking the build
-          boot.supportedFilesystems = lib.mkForce ["btrfs" "cifs" "f2fs" "jfs" "ntfs" "reiserfs" "vfat" "xfs"];
-
-          # I'm not completely sure if some of these could be omitted,
-          # but want to make sure disk access works
-          boot.initrd.availableKernelModules = [
-            "nvme"
-            "nvme-core"
-            "phy-rockchip-naneng-combphy"
-            "phy-rockchip-snps-pcie3"
-          ];
-          # Petitboot uses this port and baud rate on the boards serial port,
-          # it's probably good to keep the options same for the running
-          # kernel for serial console access to work well
-          boot.kernelParams = ["console=ttyS2,1500000"];
-          hardware.deviceTree.name = "rockchip/rk3568-odroid-m1.dtb";
-
           # Enable nix flakes
           nix.package = pkgs.nix;
           nix.extraOptions = ''
             experimental-features = nix-command flakes
           '';
-          nix.nixPath = ["nixpkgs=${nixpkgs}"];
-
-          # includes this flake in the live iso : "/etc/nixcfg"
-          environment.etc.nixcfg.source =
-            builtins.filterSource
-            (path: type:
-              baseNameOf path
-              != ".git"
-              && type != "symlink"
-              && !(pkgs.lib.hasSuffix ".qcow2" path)
-              && baseNameOf path != "secrets")
-            ../.;
-
-    environment.systemPackages = [
-      pkgs.git #gotta have git
-    ];
-
+          environment.systemPackages = [
+            pkgs.git #gotta have git
+          ];
 
           services.openssh = {
             enable = true;
