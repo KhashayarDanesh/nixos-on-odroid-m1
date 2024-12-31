@@ -2,11 +2,6 @@
 {
   system.stateVersion = lib.mkDefault "24.11";
 
-  imports = [
-    #"${fetchTarball "https://github.com/KhashayarDanesh/nixos-hardware/tarball/master"}/hardkernel/odroid-m1"
-    "${fetchTarball {url="https://github.com/KhashayarDanesh/nixos-hardware/tarball/master"; sha256="11698l6r6p0jajd0c2rda0ipi54yi26wrj32a006256axvzz6wqh";}}/hardkernel/odroid-m1/"
-  ];
-
   nixpkgs.hostPlatform.system = "aarch64-linux";
 
   services.openssh = {
